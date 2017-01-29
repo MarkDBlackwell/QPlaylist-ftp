@@ -13,6 +13,10 @@ def connect(domain, user, password)
   FTP.login user, password
 end
 
+def console_keep_brief
+  sleep 4 # seconds
+end
+
 def directory_change(directory)
   FTP.chdir directory
   response_print
@@ -21,6 +25,7 @@ end
 def domain_file(line_current)
   message = "First line must be \"open {domain name}\".\n"
   line_open = line_current.split ' '
+#print 'line_open'; pp line_open
   unless (2 == line_open.length) && ('open' == (line_open.at 0))
     print line_current
     print message
@@ -46,7 +51,11 @@ def file_command_ftp_read
 end
 
 def file_put(localfile, remotefile)
-   FTP.putbinaryfile localfile, remotefile
+  stat = ::File::Stat.new localfile
+# The only successful way to send a file is entirely, in one single block
+  blocksize = stat.size
+# print 'blocksize='; p blocksize
+  FTP.putbinaryfile localfile, remotefile, blocksize
 end
 
 def filename_ftp_command
@@ -86,12 +95,13 @@ def files_send
     quit
 
   rescue => exception
-    response_print
+    print "#{FTP.last_response}\n"
     FTP.abort
     raise
   ensure
     FTP.close
   end
+  console_keep_brief
 end
 
 def modes_set
