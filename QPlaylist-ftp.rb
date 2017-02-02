@@ -14,7 +14,7 @@ def connect(domain, user, password)
 end
 
 def console_keep_brief
-  sleep 4 # seconds
+# sleep 4 # seconds
 end
 
 def directory_change(directory)
@@ -55,6 +55,7 @@ def file_put(localfile, remotefile)
 # The only successful way to send a file is entirely, in one single block
   blocksize = stat.size
 # print 'blocksize='; p blocksize
+  blocksize = [1, blocksize].max # Handle zero-length files.
   FTP.putbinaryfile localfile, remotefile, blocksize
 end
 
